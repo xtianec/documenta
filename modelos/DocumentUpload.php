@@ -15,9 +15,8 @@ class DocumentUpload
             global $conexion;
             $user_id = limpiarCadena($user_id);
 
-            // Obtener job_id del usuario
-            $sqlJob = "SELECT job_id FROM users WHERE id = '$user_id'";
-            $resultJob = ejecutarConsultaSimpleFila($sqlJob);
+            $sqlJob = "SELECT job_id FROM users WHERE id = ?";
+            $resultJob = ejecutarConsultaSimpleFila($sqlJob, [$user_id]);
             $job_id = $resultJob ? $resultJob['job_id'] : null;
 
             if (!$job_id) {
@@ -28,10 +27,10 @@ class DocumentUpload
             $sql = "SELECT md.id AS document_id, dn.documentName AS name, md.document_type, dn.id AS category_id
                     FROM mandatory_documents md
                     INNER JOIN document_name dn ON md.documentName_id = dn.id
-                    WHERE md.position_id = '$job_id' AND md.is_active = 1
+                    WHERE md.position_id = ? AND md.is_active = 1
                     ORDER BY md.id ASC";
 
-            $result = ejecutarConsulta($sql);
+            $result = ejecutarConsulta($sql, [$job_id]);
 
             if ($result) {
                 $documents = [];
@@ -57,9 +56,9 @@ class DocumentUpload
 
             $sql = "SELECT category_id AS document_id, document_name, document_path, uploaded_at
                     FROM documents
-                    WHERE user_id = '$user_id'";
+                    WHERE user_id = ?";
 
-            $result = ejecutarConsulta($sql);
+            $result = ejecutarConsulta($sql, [$user_id]);
 
             if ($result) {
                 $documents = [];
@@ -90,8 +89,8 @@ class DocumentUpload
             $state_id = limpiarCadena($data['state_id']);
 
             // Verificar si ya existe un documento para este usuario y categoría
-            $sqlCheck = "SELECT id, document_path FROM documents WHERE user_id = '$user_id' AND category_id = '$category_id'";
-            $resultCheck = ejecutarConsultaSimpleFila($sqlCheck);
+            $sqlCheck = "SELECT id, document_path FROM documents WHERE user_id = ? AND category_id = ?";
+            $resultCheck = ejecutarConsultaSimpleFila($sqlCheck, [$user_id, $category_id]);
 
             // Definir la ruta del directorio del usuario
             $uploadDir = "../uploads/user/user_$user_id/";
@@ -117,16 +116,17 @@ class DocumentUpload
                     }
 
                     // Actualizar el registro
-                    $sqlUpdate = "UPDATE documents SET 
-                                    document_type = '$document_type',
-                                    document_name = '$document_name',
-                                    document_path = '$destinationPath',
-                                    user_observation = '$user_observation',
-                                    state_id = '$state_id',
+                    $sqlUpdate = "UPDATE documents SET
+                                    document_type = ?,
+                                    document_name = ?,
+                                    document_path = ?,
+                                    user_observation = ?,
+                                    state_id = ?,
                                     uploaded_at = NOW()
-                                  WHERE id = '$document_id'";
+                                  WHERE id = ?";
 
-                    $resultUpdate = ejecutarConsulta($sqlUpdate);
+                    $paramsUpdate = [$document_type, $document_name, $destinationPath, $user_observation, $state_id, $document_id];
+                    $resultUpdate = ejecutarConsulta($sqlUpdate, $paramsUpdate);
 
                     if ($resultUpdate) {
                         return ['success' => true];
@@ -138,9 +138,10 @@ class DocumentUpload
                 } else {
                     // No existe, insertar nuevo registro
                     $sqlInsert = "INSERT INTO documents (user_id, document_type, document_name, document_path, category_id, user_observation, state_id, uploaded_at)
-                                  VALUES ('$user_id', '$document_type', '$document_name', '$destinationPath', '$category_id', '$user_observation', '$state_id', NOW())";
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
 
-                    $resultInsert = ejecutarConsulta_retornarID($sqlInsert);
+                    $paramsInsert = [$user_id, $document_type, $document_name, $destinationPath, $category_id, $user_observation, $state_id];
+                    $resultInsert = ejecutarConsulta_retornarID($sqlInsert, $paramsInsert);
 
                     if ($resultInsert) {
                         return ['success' => true];
@@ -167,8 +168,8 @@ class DocumentUpload
             $category_id = limpiarCadena($category_id);
 
             // Obtener información del documento a eliminar
-            $sqlGet = "SELECT id, document_path FROM documents WHERE user_id = '$user_id' AND category_id = '$category_id'";
-            $resultGet = ejecutarConsultaSimpleFila($sqlGet);
+            $sqlGet = "SELECT id, document_path FROM documents WHERE user_id = ? AND category_id = ?";
+            $resultGet = ejecutarConsultaSimpleFila($sqlGet, [$user_id, $category_id]);
 
             if ($resultGet) {
                 $document_id = $resultGet['id'];
@@ -178,8 +179,8 @@ class DocumentUpload
                 $conexion->begin_transaction();
 
                 // Eliminar las entradas relacionadas en document_history
-                $sqlDeleteHistory = "DELETE FROM document_history WHERE document_id = '$document_id'";
-                $resultDeleteHistory = ejecutarConsulta($sqlDeleteHistory);
+                $sqlDeleteHistory = "DELETE FROM document_history WHERE document_id = ?";
+                $resultDeleteHistory = ejecutarConsulta($sqlDeleteHistory, [$document_id]);
 
                 if (!$resultDeleteHistory) {
                     $conexion->rollback();
@@ -187,8 +188,8 @@ class DocumentUpload
                 }
 
                 // Eliminar el registro de la base de datos
-                $sqlDelete = "DELETE FROM documents WHERE id = '$document_id'";
-                $resultDelete = ejecutarConsulta($sqlDelete);
+                $sqlDelete = "DELETE FROM documents WHERE id = ?";
+                $resultDelete = ejecutarConsulta($sqlDelete, [$document_id]);
 
                 if ($resultDelete) {
                     // Confirmar la transacción
@@ -222,10 +223,10 @@ class DocumentUpload
 
             $sql = "SELECT id, document_name, document_path, uploaded_at, state_id
                     FROM documents
-                    WHERE user_id = '$user_id' AND category_id = '$category_id'
+                    WHERE user_id = ? AND category_id = ?
                     ORDER BY uploaded_at DESC";
 
-            $result = ejecutarConsulta($sql);
+            $result = ejecutarConsulta($sql, [$user_id, $category_id]);
 
             if ($result) {
                 $documents = [];

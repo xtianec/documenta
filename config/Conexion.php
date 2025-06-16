@@ -95,11 +95,33 @@ if (!function_exists('ejecutarConsulta')) {
 }
 
     
-    function ejecutarConsulta_retornarID($sql)
+    function ejecutarConsulta_retornarID($sql, $params = [])
     {
         global $conexion;
-        $query = $conexion->query($sql);
-        return $conexion->insert_id;
+
+        $stmt = $conexion->prepare($sql);
+        if ($stmt === false) {
+            error_log("Error en la preparación de la consulta: " . $conexion->error);
+            return false;
+        }
+
+        if (!empty($params)) {
+            $types = str_repeat('s', count($params));
+            if (!$stmt->bind_param($types, ...$params)) {
+                error_log("Error en bind_param: " . $stmt->error);
+                return false;
+            }
+        }
+
+        if ($stmt->execute()) {
+            $id = $stmt->insert_id;
+            $stmt->close();
+            return $id;
+        } else {
+            error_log("Error en la consulta: " . $stmt->error);
+            $stmt->close();
+            return false;
+        }
     }
 
     function limpiarCadena($str)
@@ -109,26 +131,48 @@ if (!function_exists('ejecutarConsulta')) {
         return htmlspecialchars($str);
     }
 
-    function ejecutarConsultaArray($sql)
+    function ejecutarConsultaArray($sql, $params = [])
     {
         global $conexion;
+
+
+        $stmt = $conexion->prepare($sql);
+        if ($stmt === false) {
+            error_log("Error en la preparación de la consulta: " . $conexion->error);
+
         $query = $conexion->query($sql);
         
         // Verifica si la consulta fue exitosa
         if (!$query) {
             logError("Error en la consulta: " . $conexion->error . " - SQL: $sql");
+
             return false;
         }
-        
-        // Crea un arreglo para almacenar los resultados
-        $resultArray = array();
-        
-        // Itera sobre cada fila del resultado y la agrega al arreglo
-        while ($row = $query->fetch_assoc()) {
+
+        if (!empty($params)) {
+            $types = str_repeat('s', count($params));
+            if (!$stmt->bind_param($types, ...$params)) {
+                error_log("Error en bind_param: " . $stmt->error);
+                return false;
+            }
+        }
+
+        if (!$stmt->execute()) {
+            error_log("Error en la ejecución de la consulta: " . $stmt->error);
+            return false;
+        }
+
+        $result = $stmt->get_result();
+        if ($result === false) {
+            error_log("Error al obtener el resultado: " . $stmt->error);
+            return false;
+        }
+
+        $resultArray = [];
+        while ($row = $result->fetch_assoc()) {
             $resultArray[] = $row;
         }
-        
-        // Retorna el arreglo con todas las filas
+
         return $resultArray;
     }
 
