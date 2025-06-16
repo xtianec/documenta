@@ -20,13 +20,29 @@ curl_setopt_array($curl, array(
 
 $response = curl_exec($curl);
 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+if ($response === false) {
+    $error = curl_error($curl);
+    curl_close($curl);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => 'Error al conectarse con la API',
+        'details' => $error
+    ]);
+    exit;
+}
+
 curl_close($curl);
 
 if ($httpcode === 200) {
     header('Content-Type: application/json');
     echo $response;
 } else {
-    echo json_encode(['error' => 'Error en la consulta del RUC', 'code' => $httpcode]);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => 'Error en la consulta del RUC',
+        'code' => $httpcode
+    ]);
 }
 
 ?>

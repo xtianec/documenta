@@ -24,7 +24,29 @@ curl_setopt_array($curl, array(
 ));
 
 $response = curl_exec($curl);
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+if ($response === false) {
+    $error = curl_error($curl);
+    curl_close($curl);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => 'Error al conectarse con la API',
+        'details' => $error
+    ]);
+    exit;
+}
+
 curl_close($curl);
+
+if ($httpCode !== 200) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => 'Error en la consulta del DNI',
+        'code' => $httpCode
+    ]);
+    exit;
+}
 
 // Devuelve la respuesta JSON a tu frontend
 header('Content-Type: application/json');
