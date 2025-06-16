@@ -1,5 +1,6 @@
 <?php 
 require_once "global.php";
+require_once "Utilidades.php";
 
 $conexion = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
@@ -20,7 +21,7 @@ if (!function_exists('ejecutarConsulta')) {
         // Preparar la consulta
         $stmt = $conexion->prepare($sql);
         if ($stmt === false) {
-            echo "Error en la preparación de la consulta: " . $conexion->error;
+            logError("Error en la preparación de la consulta: " . $conexion->error . " - SQL: $sql");
             return false;
         }
         
@@ -38,7 +39,7 @@ if (!function_exists('ejecutarConsulta')) {
             }
             return true; // Para `UPDATE`, `DELETE` o `INSERT`, solo devolver éxito
         } else {
-            echo "Error en la consulta: " . $stmt->error;
+            logError("Error en la consulta: " . $stmt->error . " - SQL: $sql");
             return false;
         }
     }
@@ -49,7 +50,7 @@ if (!function_exists('ejecutarConsulta')) {
     // Prepara la consulta
     $stmt = $conexion->prepare($sql);
     if ($stmt === false) {
-        error_log("Error en la preparación de la consulta: " . $conexion->error);
+        logError("Error en la preparación de la consulta: " . $conexion->error . " - SQL: $sql");
         return null;
     }
 
@@ -67,21 +68,21 @@ if (!function_exists('ejecutarConsulta')) {
             }
         }
         if (!$stmt->bind_param($types, ...$params)) {
-            error_log("Error en bind_param: " . $stmt->error);
+            logError("Error en bind_param: " . $stmt->error . " - SQL: $sql");
             return null;
         }
     }
 
     // Ejecuta la consulta
     if (!$stmt->execute()) {
-        error_log("Error en la ejecución de la consulta: " . $stmt->error);
+        logError("Error en la ejecución de la consulta: " . $stmt->error . " - SQL: $sql");
         return null;
     }
 
     // Obtén el resultado
     $resultado = $stmt->get_result();
     if ($resultado === false) {
-        error_log("Error al obtener el resultado: " . $stmt->error);
+        logError("Error al obtener el resultado: " . $stmt->error . " - SQL: $sql");
         return null;
     }
 
@@ -115,7 +116,7 @@ if (!function_exists('ejecutarConsulta')) {
         
         // Verifica si la consulta fue exitosa
         if (!$query) {
-            echo "Error en la consulta: " . $conexion->error;
+            logError("Error en la consulta: " . $conexion->error . " - SQL: $sql");
             return false;
         }
         
@@ -133,3 +134,4 @@ if (!function_exists('ejecutarConsulta')) {
 
 }
 ?>
+
