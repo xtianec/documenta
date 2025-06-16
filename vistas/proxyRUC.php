@@ -1,9 +1,9 @@
 <?php
 $token = 'apis-token-6397.Lmx17dsxx-Ohh00Fi-eeORJX6gQMMECC';
-$ruc = $_GET['ruc'];
 
-// Verifica que el RUC sea válido
-if (strlen($ruc) !== 11 || !is_numeric($ruc)) {
+// Validar el RUC recibido
+$ruc = isset($_GET['ruc']) ? $_GET['ruc'] : '';
+if (!preg_match('/^\d{11}$/', $ruc)) {
     echo json_encode(['error' => 'RUC inválido']);
     exit;
 }
@@ -12,7 +12,7 @@ $curl = curl_init();
 curl_setopt_array($curl, array(
     CURLOPT_URL => 'https://api.apis.net.pe/v1/ruc?numero=' . $ruc,
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_SSL_VERIFYPEER => 0,
+    CURLOPT_SSL_VERIFYPEER => 1,
     CURLOPT_HTTPHEADER => array(
         'Authorization: Bearer ' . $token
     ),
