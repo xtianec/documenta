@@ -466,7 +466,7 @@ function cargarPuestosPorArea(areaId, selector, selectedJobId = null) {
 // Función para consultar DNI al agregar
 function consultarDNI(dni) {
     $.ajax({
-        url: 'proxy?dni=' + dni,
+        url: '/documenta/proxy?dni=' + dni,
         method: 'GET',
         dataType: 'json',
         success: function (response) {
@@ -489,7 +489,7 @@ function consultarDNI(dni) {
 // Función para consultar DNI al actualizar
 function consultarDNIUpdate(dni) {
     $.ajax({
-        url: 'proxy?dni=' + dni,
+        url: '/documenta/proxy?dni=' + dni,
         method: 'GET',
         dataType: 'json',
         success: function (response) {

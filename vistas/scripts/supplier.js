@@ -68,7 +68,7 @@ function listar() {
 // Función para consultar RUC
 function consultarRUC(ruc) {
     $.ajax({
-        url: 'proxyRUC',
+        url: '/documenta/proxyRUC',
         method: 'GET',
         data: { ruc: ruc },
         success: function (response) {
@@ -106,7 +106,7 @@ function consultarRUC(ruc) {
 // Función para consultar RUC al actualizar
 function consultarRUCUpdate(ruc) {
     $.ajax({
-        url: 'proxyRUC', // Cambia la ruta si es necesario
+        url: '/documenta/proxyRUC', // Cambia la ruta si es necesario
         method: 'GET',
         data: { ruc: ruc },
         success: function (response) {
