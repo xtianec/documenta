@@ -39,10 +39,11 @@ class Supplier
         $contactEmailBusiness = limpiarCadena($contactEmailBusiness);
         $contactPhoneBusiness = limpiarCadena($contactPhoneBusiness);
 
-        $sql = "INSERT INTO suppliers (RUC, companyName, department, province, district, address, stateSunat, conditionSunat, contactNameBusiness, contactEmailBusiness, contactPhoneBusiness, password, is_active) 
-                VALUES ('$RUC', '$companyName', '$department', '$province', '$district', '$address', '$stateSunat', '$conditionSunat', '$contactNameBusiness', '$contactEmailBusiness', '$contactPhoneBusiness', '$password_hashed_escaped', '1')";
+        $sql = "INSERT INTO suppliers (RUC, companyName, department, province, district, address, stateSunat, conditionSunat, contactNameBusiness, contactEmailBusiness, contactPhoneBusiness, password, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1')";
+        $params = [$RUC, $companyName, $department, $province, $district, $address, $stateSunat, $conditionSunat, $contactNameBusiness, $contactEmailBusiness, $contactPhoneBusiness, $password_hashed_escaped];
 
-        $result = ejecutarConsulta($sql);
+        $result = ejecutarConsulta($sql, $params);
 
         if ($result) {
             // Enviar correo con la contraseña generada
@@ -62,21 +63,22 @@ class Supplier
     // Editar proveedor
     public function editar($id, $RUC, $companyName, $department, $province, $district, $address, $stateSunat, $conditionSunat, $contactNameBusiness, $contactEmailBusiness, $contactPhoneBusiness)
     {
-        $sql = "UPDATE suppliers 
-                SET RUC = '$RUC', 
-                    companyName = '$companyName', 
-                    department = '$department',
-                    province = '$province',
-                    district = '$district',
-                    address = '$address',
-                    stateSunat = '$stateSunat',
-                    conditionSunat = '$conditionSunat',
-                    contactNameBusiness = '$contactNameBusiness', 
-                    contactEmailBusiness = '$contactEmailBusiness', 
-                    contactPhoneBusiness = '$contactPhoneBusiness' 
-                WHERE id = '$id'";
+        $sql = "UPDATE suppliers
+                SET RUC = ?,
+                    companyName = ?,
+                    department = ?,
+                    province = ?,
+                    district = ?,
+                    address = ?,
+                    stateSunat = ?,
+                    conditionSunat = ?,
+                    contactNameBusiness = ?,
+                    contactEmailBusiness = ?,
+                    contactPhoneBusiness = ?
+                WHERE id = ?";
 
-        return ejecutarConsulta($sql);
+        $params = [$RUC, $companyName, $department, $province, $district, $address, $stateSunat, $conditionSunat, $contactNameBusiness, $contactEmailBusiness, $contactPhoneBusiness, $id];
+        return ejecutarConsulta($sql, $params);
     }
 
 
@@ -84,41 +86,42 @@ class Supplier
     // Desactivar proveedor
     public function desactivar($id)
     {
-        $sql = "UPDATE suppliers SET is_active = '0' WHERE id = '$id'";
-        return ejecutarConsulta($sql);
+        $sql = "UPDATE suppliers SET is_active = '0' WHERE id = ?";
+        return ejecutarConsulta($sql, [$id]);
     }
 
     // Activar proveedor
     public function activar($id)
     {
-        $sql = "UPDATE suppliers SET is_active = '1' WHERE id = '$id'";
-        return ejecutarConsulta($sql);
+        $sql = "UPDATE suppliers SET is_active = '1' WHERE id = ?";
+        return ejecutarConsulta($sql, [$id]);
     }
 
     // Mostrar datos de un proveedor específico
     public function mostrar($id)
     {
-        $sql = "SELECT * FROM suppliers WHERE id = '$id'";
-        return ejecutarConsultaSimpleFila($sql);
+        $sql = "SELECT * FROM suppliers WHERE id = ?";
+        return ejecutarConsultaSimpleFila($sql, [$id]);
     }
 
     // Listar documentos por proveedor
     public function listarDocumentos($supplier_id)
     {
-        $sql = "SELECT ds.*, d.name as document_name, s.state_name 
+        $sql = "SELECT ds.*, d.name as document_name, s.state_name
                 FROM document_supplier ds
                 LEFT JOIN document_name_supplier d ON ds.documentNameSupplier_id = d.id
                 LEFT JOIN document_states s ON ds.state_id = s.id
-                WHERE ds.supplier_id = '$supplier_id'";
-        return ejecutarConsulta($sql);
+                WHERE ds.supplier_id = ?";
+        return ejecutarConsulta($sql, [$supplier_id]);
     }
 
     // Insertar un documento del proveedor
     public function insertarDocumento($supplier_id, $documentNameSupplier_id, $documentFileName, $documentPath, $originalFileName, $state_id)
     {
-        $sql = "INSERT INTO document_supplier (supplier_id, documentNameSupplier_id, documentFileName, documentPath, originalFileName, state_id, admin_reviewed) 
-                VALUES ('$supplier_id', '$documentNameSupplier_id', '$documentFileName', '$documentPath', '$originalFileName', '$state_id', '0')";
-        return ejecutarConsulta($sql);
+        $sql = "INSERT INTO document_supplier (supplier_id, documentNameSupplier_id, documentFileName, documentPath, originalFileName, state_id, admin_reviewed)
+                VALUES (?, ?, ?, ?, ?, ?, '0')";
+        $params = [$supplier_id, $documentNameSupplier_id, $documentFileName, $documentPath, $originalFileName, $state_id];
+        return ejecutarConsulta($sql, $params);
     }
 
     // Enviar correo con credenciales al proveedor
@@ -166,8 +169,8 @@ class Supplier
     {
         $ruc = limpiarCadena($ruc);
 
-        $sql = "SELECT * FROM suppliers WHERE RUC = '$ruc' AND is_active = 1";
-        $result = ejecutarConsultaSimpleFila($sql);
+        $sql = "SELECT * FROM suppliers WHERE RUC = ? AND is_active = 1";
+        $result = ejecutarConsultaSimpleFila($sql, [$ruc]);
 
         if ($result) {
             // Obtener el hash almacenado y eliminar las barras invertidas
@@ -186,15 +189,15 @@ class Supplier
     public function registrarLogin($supplier_id)
     {
         $supplier_id = (int)$supplier_id;
-        $sql = "INSERT INTO supplier_access_log (supplier_id, access_time) VALUES ('$supplier_id', NOW())";
-        return ejecutarConsulta($sql);
+        $sql = "INSERT INTO supplier_access_log (supplier_id, access_time) VALUES (?, NOW())";
+        return ejecutarConsulta($sql, [$supplier_id]);
     }
 
     // Obtener los detalles del proveedor por su ID
     public function obtenerProveedorPorId($supplier_id)
     {
-        $sql = "SELECT * FROM suppliers WHERE id = '$supplier_id'";
-        return ejecutarConsultaSimpleFila($sql);
+        $sql = "SELECT * FROM suppliers WHERE id = ?";
+        return ejecutarConsultaSimpleFila($sql, [$supplier_id]);
     }
 
 

@@ -172,24 +172,29 @@ class Jobs
 
     public function listarFiltrado($company_id, $area_id, $position_id)
     {
-        $sql = "SELECT j.*, a.area_name, c.company_name FROM jobs j 
-            INNER JOIN areas a ON j.area_id = a.id 
-            INNER JOIN companies c ON a.company_id = c.id 
+        $sql = "SELECT j.*, a.area_name, c.company_name FROM jobs j
+            INNER JOIN areas a ON j.area_id = a.id
+            INNER JOIN companies c ON a.company_id = c.id
             WHERE 1=1";
 
+        $params = [];
+
         if (!empty($company_id)) {
-            $sql .= " AND c.id = '$company_id'";
+            $sql .= " AND c.id = ?";
+            $params[] = $company_id;
         }
 
         if (!empty($area_id)) {
-            $sql .= " AND a.id = '$area_id'";
+            $sql .= " AND a.id = ?";
+            $params[] = $area_id;
         }
 
         if (!empty($position_id)) {
-            $sql .= " AND j.id = '$position_id'";
+            $sql .= " AND j.id = ?";
+            $params[] = $position_id;
         }
 
-        return ejecutarConsulta($sql);
+        return ejecutarConsulta($sql, $params);
     }
 
     // Nota: Eliminada la segunda definición de mostrarTrabajo

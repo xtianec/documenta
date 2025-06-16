@@ -12,9 +12,10 @@ class SupplierDetails
         $contactPhoneAccouting = limpiarCadena($contactPhoneAccouting);
         $Provide = limpiarCadena($Provide);
 
-        $sql = "INSERT INTO supplierdetail (supplier_id, contactNameAccouting, contactEmailAccouting, contactPhoneAccouting, Provide) 
-                VALUES ('$supplier_id', '$contactNameAccouting', '$contactEmailAccouting', '$contactPhoneAccouting', '$Provide')";
-        return ejecutarConsulta($sql);
+        $sql = "INSERT INTO supplierdetail (supplier_id, contactNameAccouting, contactEmailAccouting, contactPhoneAccouting, Provide)
+                VALUES (?, ?, ?, ?, ?)";
+        $params = [$supplier_id, $contactNameAccouting, $contactEmailAccouting, $contactPhoneAccouting, $Provide];
+        return ejecutarConsulta($sql, $params);
     }
 
     // Actualizar detalles del proveedor
@@ -28,11 +29,12 @@ class SupplierDetails
         $contactPhoneAccouting = limpiarCadena($contactPhoneAccouting);
         $Provide = limpiarCadena($Provide);
     
-        $sql = "UPDATE supplierdetail 
-                SET contactNameAccouting='$contactNameAccouting', contactEmailAccouting='$contactEmailAccouting', contactPhoneAccouting='$contactPhoneAccouting', Provide='$Provide' 
-                WHERE id='$id'";
-    
-        $result = ejecutarConsulta($sql);
+        $sql = "UPDATE supplierdetail
+                SET contactNameAccouting = ?, contactEmailAccouting = ?, contactPhoneAccouting = ?, Provide = ?
+                WHERE id = ?";
+
+        $params = [$contactNameAccouting, $contactEmailAccouting, $contactPhoneAccouting, $Provide, $id];
+        $result = ejecutarConsulta($sql, $params);
     
         if ($result) {
             return ['success' => true];
@@ -48,8 +50,8 @@ class SupplierDetails
     {
         $supplier_id = limpiarCadena($supplier_id);
 
-        $sql = "SELECT * FROM supplierdetail WHERE supplier_id='$supplier_id'";
-        return ejecutarConsultaSimpleFila($sql);
+        $sql = "SELECT * FROM supplierdetail WHERE supplier_id = ?";
+        return ejecutarConsultaSimpleFila($sql, [$supplier_id]);
     }
 }
 ?>

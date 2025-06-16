@@ -10,14 +10,14 @@ class Area {
         $company_id = limpiarCadena($company_id);
 
         // Verificar si el área ya existe en la empresa
-        $sql_verificar = "SELECT id FROM areas WHERE area_name = '$area_name' AND company_id = '$company_id'";
-        $rspta_verificar = ejecutarConsulta($sql_verificar);
+        $sql_verificar = "SELECT id FROM areas WHERE area_name = ? AND company_id = ?";
+        $rspta_verificar = ejecutarConsulta($sql_verificar, [$area_name, $company_id]);
         if ($rspta_verificar && $rspta_verificar->num_rows > 0) {
             return false; // Área ya existe
         }
 
-        $sql = "INSERT INTO areas (area_name, company_id) VALUES ('$area_name', '$company_id')";
-        return ejecutarConsulta($sql);
+        $sql = "INSERT INTO areas (area_name, company_id) VALUES (?, ?)";
+        return ejecutarConsulta($sql, [$area_name, $company_id]);
     }
 
     // Método para editar una área existente
@@ -28,38 +28,38 @@ class Area {
         $company_id = limpiarCadena($company_id);
 
         // Verificar si el área ya existe en la empresa
-        $sql_verificar = "SELECT id FROM areas WHERE area_name = '$area_name' AND company_id = '$company_id' AND id != '$id'";
-        $rspta_verificar = ejecutarConsulta($sql_verificar);
+        $sql_verificar = "SELECT id FROM areas WHERE area_name = ? AND company_id = ? AND id != ?";
+        $rspta_verificar = ejecutarConsulta($sql_verificar, [$area_name, $company_id, $id]);
         if ($rspta_verificar && $rspta_verificar->num_rows > 0) {
             return false; // Área ya existe en otra entrada
         }
 
-        $sql = "UPDATE areas SET area_name = '$area_name', company_id = '$company_id' WHERE id = '$id'";
-        return ejecutarConsulta($sql);
+        $sql = "UPDATE areas SET area_name = ?, company_id = ? WHERE id = ?";
+        return ejecutarConsulta($sql, [$area_name, $company_id, $id]);
     }
 
     // Método para desactivar una área
     public function desactivar($id)
     {
         $id = limpiarCadena($id);
-        $sql = "UPDATE areas SET is_active = 0 WHERE id = '$id'";
-        return ejecutarConsulta($sql);
+        $sql = "UPDATE areas SET is_active = 0 WHERE id = ?";
+        return ejecutarConsulta($sql, [$id]);
     }
 
     // Método para activar una área
     public function activar($id)
     {
         $id = limpiarCadena($id);
-        $sql = "UPDATE areas SET is_active = 1 WHERE id = '$id'";
-        return ejecutarConsulta($sql);
+        $sql = "UPDATE areas SET is_active = 1 WHERE id = ?";
+        return ejecutarConsulta($sql, [$id]);
     }
 
     // Método para mostrar una área específica
     public function mostrar($id)
     {
         $id = limpiarCadena($id);
-        $sql = "SELECT * FROM areas WHERE id = '$id'";
-        return ejecutarConsultaSimpleFila($sql);
+        $sql = "SELECT * FROM areas WHERE id = ?";
+        return ejecutarConsultaSimpleFila($sql, [$id]);
     }
 
     // Método para listar todas las áreas
@@ -74,11 +74,12 @@ class Area {
     {
         if ($company_id) {
             $company_id = limpiarCadena($company_id);
-            $sql = "SELECT * FROM areas WHERE is_active = 1 AND company_id = '$company_id'";
+            $sql = "SELECT * FROM areas WHERE is_active = 1 AND company_id = ?";
+            return ejecutarConsulta($sql, [$company_id]);
         } else {
             $sql = "SELECT * FROM areas WHERE is_active = 1";
+            return ejecutarConsulta($sql);
         }
-        return ejecutarConsulta($sql);
     }
 
     // Método para verificar si un área ya existe
@@ -88,11 +89,13 @@ class Area {
         $company_id = limpiarCadena($company_id);
         if ($id) {
             $id = limpiarCadena($id);
-            $sql = "SELECT id FROM areas WHERE area_name = '$area_name' AND company_id = '$company_id' AND id != '$id'";
+            $sql = "SELECT id FROM areas WHERE area_name = ? AND company_id = ? AND id != ?";
+            $params = [$area_name, $company_id, $id];
         } else {
-            $sql = "SELECT id FROM areas WHERE area_name = '$area_name' AND company_id = '$company_id'";
+            $sql = "SELECT id FROM areas WHERE area_name = ? AND company_id = ?";
+            $params = [$area_name, $company_id];
         }
-        $result = ejecutarConsulta($sql);
+        $result = ejecutarConsulta($sql, $params);
         if ($result && $result->num_rows > 0) {
             return true; // Área ya existe
         }
@@ -103,8 +106,8 @@ class Area {
     public function listar_por_empresa($company_id)
     {
         $company_id = limpiarCadena($company_id);
-        $sql = "SELECT id, area_name FROM areas WHERE is_active = 1 AND company_id = '$company_id' ORDER BY area_name ASC";
-        return ejecutarConsulta($sql);
+        $sql = "SELECT id, area_name FROM areas WHERE is_active = 1 AND company_id = ? ORDER BY area_name ASC";
+        return ejecutarConsulta($sql, [$company_id]);
     }
 }
 ?>
