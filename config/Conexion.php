@@ -135,44 +135,16 @@ if (!function_exists('ejecutarConsulta')) {
 
     function ejecutarConsultaArray($sql, $params = [])
     {
-        global $conexion;
-
-
-        $stmt = $conexion->prepare($sql);
-        if ($stmt === false) {
-            error_log("Error en la preparación de la consulta: " . $conexion->error);
-
-        $query = $conexion->query($sql);
-        
-        // Verifica si la consulta fue exitosa
-        if (!$query) {
-            logError("Error en la consulta: " . $conexion->error . " - SQL: $sql");
-
-            return false;
-        }
-
-        if (!empty($params)) {
-            $types = str_repeat('s', count($params));
-            if (!$stmt->bind_param($types, ...$params)) {
-                error_log("Error en bind_param: " . $stmt->error);
-                return false;
-            }
-        }
-
-        if (!$stmt->execute()) {
-            error_log("Error en la ejecución de la consulta: " . $stmt->error);
-            return false;
-        }
-
-        $result = $stmt->get_result();
+        $result = ejecutarConsulta($sql, $params);
         if ($result === false) {
-            error_log("Error al obtener el resultado: " . $stmt->error);
             return false;
         }
 
         $resultArray = [];
-        while ($row = $result->fetch_assoc()) {
-            $resultArray[] = $row;
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
+                $resultArray[] = $row;
+            }
         }
 
         return $resultArray;
