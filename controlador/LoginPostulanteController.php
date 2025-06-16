@@ -3,6 +3,7 @@
 
 require_once "../modelos/Applicant.php";
 require_once "../config/Conexion.php"; // Asegúrate de que la ruta sea correcta
+require_once "../config/Utilidades.php";
 
 class LoginPostulanteController
 {
@@ -68,11 +69,6 @@ if (isset($_GET['op'])) {
             $controller->verificar();
             break;
     }
-}
-
-// Función para registrar errores en el archivo de log
-function logError($message) {
-    file_put_contents('../logs/errors.log', date('[Y-m-d H:i:s] ') . $message . PHP_EOL, FILE_APPEND);
 }
 
 // Asegúrate de que la función limpiarCadena está definida correctamente

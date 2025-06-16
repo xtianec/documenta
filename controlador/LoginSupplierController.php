@@ -2,6 +2,7 @@
 // Archivo: ../controlador/LoginSupplierController.php
 
 require_once "../config/Conexion.php"; // Incluir Conexion.php
+require_once "../config/Utilidades.php";
 require_once "../modelos/Supplier.php";
 
 class LoginSupplierController
@@ -71,8 +72,4 @@ if (isset($_GET['op'])) {
     }
 }
 
-// Función para registrar errores en el archivo de log
-function logError($message) {
-    file_put_contents('../logs/errors.log', date('[Y-m-d H:i:s] ') . $message . PHP_EOL, FILE_APPEND);
-}
 ?>

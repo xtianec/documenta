@@ -9,6 +9,7 @@ require_once 'vendor/autoload.php';
 
 // Incluir archivos de configuración
 require_once 'config/global.php';
+require_once 'config/Utilidades.php';
 
 // Obtener la URL desde el parámetro 'url' o establecer 'home' por defecto
 $url = isset($_GET['url']) ? $_GET['url'] : 'home';
@@ -42,13 +43,16 @@ if (file_exists($controllerPath)) {
             call_user_func_array([$controller, $method], $params);
         } else {
             // Método no encontrado
+            logError('Método no encontrado: ' . $controllerName . '->' . $method);
             echo 'Error 404: Método no encontrado';
         }
     } else {
         // Clase del controlador no encontrada
+        logError('Controlador no encontrado: ' . $controllerName);
         echo 'Error 404: Controlador no encontrado';
     }
 } else {
     // Archivo del controlador no encontrado
+    logError('Archivo del controlador no encontrado: ' . $controllerPath);
     echo 'Error 404: Página no encontrada';
 }
