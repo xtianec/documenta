@@ -509,7 +509,7 @@ function mostrarHistorial(userId) {
 // Function to check DNI when adding a user
 function consultarDNI(dni) {
     $.ajax({
-        url: 'proxy',
+        url: '/documenta/proxy',
         method: 'GET',
         data: { dni: dni },
         dataType: 'json',
@@ -533,7 +533,7 @@ function consultarDNI(dni) {
 // Function to check DNI when updating a user
 function consultarDNIUpdate(dni) {
     $.ajax({
-        url: 'proxy',
+        url: '/documenta/proxy',
         method: 'GET',
         data: { dni: dni },
         dataType: 'json',
