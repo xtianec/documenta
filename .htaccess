@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteBase /documenta/
+
+# No reescribir si el archivo o directorio existe
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# No reescribir para archivos estáticos (css, js, imágenes)
+RewriteCond %{REQUEST_URI} \.(?:css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2)$ [NC]
+RewriteRule ^ - [L]
+
+# Reescribir URLs amigables para cargar archivos PHP sin extensión dentro de la carpeta 'vistas'
+RewriteRule ^(.*)$ vistas/$1.php [NC,L]
