@@ -1,14 +1,16 @@
 RewriteEngine On
 RewriteBase /documenta/
 
-# Evitar reescrituras para archivos o directorios existentes
+# Entregar archivos o directorios existentes sin aplicar reescritura
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Cargar directamente las vistas si existe el PHP correspondiente
-RewriteCond %{DOCUMENT_ROOT}/documenta/vistas/$1.php -f
-RewriteRule ^(.+)$ vistas/$1.php [L]
+# Cargar vistas PHP sin necesidad de especificar la extensión
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+?)/?$ $1.php [L]
 
 # Derivar las peticiones restantes al front controller
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
